@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS DOM Manipulation - লেসন ৮</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding-top: 50px; }
+        #message { color: blue; font-size: 24px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1 id="title">DOM Manipulation কী?</h1>
+    <p id="message">নিচের বাটনে ক্লিক করুন!</p>
+    
+    <button id="btn">ক্লিক করুন</button>
+
+    <script>
+        // ১. এলিমেন্ট সিলেক্ট করা (Selecting Elements)
+        const myTitle = document.getElementById("title");
+        const myMessage = document.getElementById("message");
+        const myButton = document.getElementById("btn");
+
+        // ২. ইভেন্ট লিসেনার (Event Listener) - বাটনে ক্লিক করলে কী হবে?
+        myButton.addEventListener("dblclick", function() {
+            // ৩. এলিমেন্ট পরিবর্তন করা (Changing Elements)
+            myTitle.innerText = "JavaScript দিয়ে টাইটেল পরিবর্তন হয়েছে!";
+            myTitle.style.color = "red";
+            
+            myMessage.innerText = "আপনি বাটনে ক্লিক করেছেন। অভিনন্দন!";
+            myMessage.style.fontWeight = "bold";
+            
+            console.log("বাটনে ক্লিক করা হয়েছে!");
+        });
+    </script>
+</body>
+</html>

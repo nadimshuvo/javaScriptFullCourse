@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আবহাওয়া অ্যাপ (Weather App) - JS Project</title>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --bg: #f0f9ff;
+            --white: #ffffff;
+            --text: #0c4a6e;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .weather-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #e0f2fe;
+            border-radius: 0.8rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .weather-info { display: none; }
+        .temp { font-size: 3rem; font-weight: bold; margin: 10px 0; color: var(--primary); }
+        .city-name { font-size: 1.5rem; margin-bottom: 5px; }
+        .status { text-transform: capitalize; color: #64748b; margin-bottom: 1.5rem; }
+        .loading { display: none; color: #0ea5e9; }
+        .error { display: none; color: #ef4444; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="weather-card">
+        <h1>🌤 আবহাওয়া আপডেট</h1>
+        
+        <div class="search-box">
+            <input type="text" id="city-input" placeholder="শহরের নাম লিখুন (যেমন: Dhaka)">
+            <button id="search-btn">খুঁজুন</button>
+        </div>
+
+        <div id="loading" class="loading">লোড হচ্ছে... (Loading...)</div>
+        <div id="error" class="error">শহর খুঁজে পাওয়া যায়নি! (City not found!)</div>
+
+        <div id="weather-info" class="weather-info">
+            <div class="city-name" id="city">Dhaka</div>
+            <div class="status" id="description">Clear Sky</div>
+            <div class="temp"><span id="temp-value">30</span>°C</div>
+            <p>আদ্রতা (Humidity): <span id="humidity">0</span>%</p>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ইন্টারমিডিয়েট প্রজেক্ট: আবহাওয়া অ্যাপ
+         * আমরা এখানে 'OpenWeatherMap' এর এপিআই ব্যবহার করবো।
+         * নোট: আপনার যদি নিজস্ব API Key থাকে তবে সেটি এখানে দিন। 
+         * আমি এখানে একটি ফ্রি বা পাবলিক কি দিয়ে চেষ্টা করছি।
+         */
+        
+        const apiKey = "8e154f2482e987823f05357df844208a"; // এটি একটি ফ্রি কী, মাঝে মাঝে লিমিট শেষ হতে পারে।
+        const searchBtn = document.getElementById('search-btn');
+        const cityInput = document.getElementById('city-input');
+        const weatherInfo = document.getElementById('weather-info');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+
+        async function fetchWeather(city) {
+            // ১. লোডিং শুরু
+            loading.style.display = 'block';
+            weatherInfo.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                // ২. এপিআই ফেচ করা
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+                
+                if (!response.ok) {
+                    throw new Error("City not found");
+                }
+
+                const data = await response.json();
+                
+                // ৩. ডাটা স্ক্রিনে দেখানো
+                displayWeather(data);
+
+            } catch (err) {
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayWeather(data) {
+            document.getElementById('city').innerText = data.name;
+            document.getElementById('description').innerText = data.weather[0].description;
+            document.getElementById('temp-value').innerText = Math.round(data.main.temp);
+            document.getElementById('humidity').innerText = data.main.humidity;
+            
+            weatherInfo.style.display = 'block';
+        }
+
+        searchBtn.addEventListener('click', () => {
+            const city = cityInput.value.trim();
+            if (city) {
+                fetchWeather(city);
+            }
+        });
+
+        // এন্টার চাপ দিলেও কাজ করবে
+        cityInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const city = cityInput.value.trim();
+                if (city) fetchWeather(city);
+            }
+        });
+    </script>
+</body>
+</html>
