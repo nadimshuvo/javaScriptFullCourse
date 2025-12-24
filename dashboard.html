@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পার্সোনাল ড্যাশবোর্ড - অ্যাডভান্সড জেএস প্রজেক্ট</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 2rem 0;
+            display: grid;
+            gap: 2rem;
+        }
+        .card {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        input, button {
+            padding: 0.7rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            margin-top: 0.5rem;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { opacity: 0.9; }
+        .date-display { font-size: 0.9rem; color: #64748b; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🚀 আমার ড্যাশবোর্ড</h1>
+        <div id="current-date" class="date-display"></div>
+    </header>
+
+    <div class="container">
+        <!-- প্রোফাইল সেকশন -->
+        <div class="card">
+            <h2>👤 ইউজার প্রোফাইল</h2>
+            <div id="profile-info">
+                <input type="text" id="user-name" placeholder="আপনার নাম">
+                <input type="email" id="user-email" placeholder="ইমেইল (রিজেক্স চেক)">
+                <button id="save-profile">প্রোফাইল সেভ করুন</button>
+            </div>
+            <p id="profile-display" style="margin-top: 1rem; font-weight: bold;"></p>
+        </div>
+
+        <!-- টাস্ক লিস্ট সেকশন -->
+        <div class="card">
+            <h2>✅ আজকের কাজ</h2>
+            <div class="task-input">
+                <input type="text" id="task-text" placeholder="নতুন কাজ যোগ করুন...">
+                <button id="add-task">যোগ করুন</button>
+            </div>
+            <div id="task-list" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { validateEmail, formatDate } from './utils.mjs';
+        import { StorageManager } from './storage.mjs';
+
+        // ১. প্রোটোটাইপ ব্যবহার করে টাস্ক ক্লাস
+        class Task {
+            constructor(text) {
+                this.text = text;
+                this.id = Date.now();
+                this.completed = false;
+            }
+        }
+
+        const taskList = document.getElementById('task-list');
+        const tasks = StorageManager.load('my_tasks') || [];
+
+        // ২. রেন্ডার স্টাইল: 'this' কনটেক্সট হ্যান্ডেল করা
+        const dashboard = {
+            today: new Date(),
+            renderDate() {
+                document.getElementById('current-date').innerText = formatDate(this.today);
+            },
+            renderTasks() {
+                taskList.innerHTML = tasks.map(t => `
+                    <div class="todo-item">
+                        <span>${t.text}</span>
+                        <button onclick="alert('কাজটি শেষ!')">Done</button>
+                    </div>
+                `).join('');
+                StorageManager.save('my_tasks', tasks);
+            }
+        };
+
+        // ৩. ইভেন্ট লিসেনার এবং এরর হ্যান্ডলিং
+        document.getElementById('save-profile').addEventListener('click', () => {
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+
+            try {
+                if (!name) throw new Error("দয়া করে নাম দিন!");
+                if (!validateEmail(email)) throw new Error("ইমেইল ফরম্যাট সঠিক নয়!");
+
+                StorageManager.save('user_profile', { name, email });
+                document.getElementById('profile-display').innerText = `হ্যালো, ${name}! (${email})`;
+                alert("প্রোফাইল সফলভাবে আপডেট হয়েছে!");
+
+            } catch (err) {
+                alert("ত্রুটি: " + err.message);
+            }
+        });
+
+        document.getElementById('add-task').addEventListener('click', () => {
+            const text = document.getElementById('task-text').value;
+            if (text) {
+                tasks.push(new Task(text));
+                dashboard.renderTasks();
+                document.getElementById('task-text').value = '';
+            }
+        });
+
+        // ইনিশিয়ালাইজেশন
+        dashboard.renderDate();
+        dashboard.renderTasks();
+
+        // প্রোফাইল লোড করা
+        const savedProfile = StorageManager.load('user_profile');
+        if (savedProfile) {
+            document.getElementById('profile-display').innerText = `হ্যালো, ${savedProfile.name}! (${savedProfile.email})`;
+        }
+    </script>
+</body>
+</html>

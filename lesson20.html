@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ব্রাউজার স্টোরেজ (LocalStorage) - JS Lesson 20</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; color: #333; }
+        .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        h2 { color: #0ea5e9; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .save-btn { background: #10b981; color: white; }
+        .clear-btn { background: #ef4444; color: white; }
+        .display { margin-top: 20px; padding: 10px; background: #e0f2fe; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>💾 ডাটা সেভ করুন</h2>
+        <p>আপনার নাম লিখুন, যা ব্রাউজার মনে রাখবে:</p>
+        <input type="text" id="name-input" placeholder="আপনার নাম...">
+        <button class="save-btn" onclick="saveData()">সেভ করুন</button>
+        <button class="clear-btn" onclick="clearData()">সব মুছুন</button>
+
+        <div id="display-area" class="display">
+            এখানে ডাটা দেখাবে...
+        </div>
+    </div>
+
+    <script>
+        /**
+         * লেসন ২০: ক্লায়েন্ট-সাইড স্টোরেজ
+         * 
+         * ১. LocalStorage: ব্রাউজার বন্ধ করলেও ডাটা হারায় না। (Permanent until deleted)
+         * ২. SessionStorage: ব্রাউজার বা ট্যাব বন্ধ করলে ডাটা মুছে যায়। (Temporary)
+         */
+
+        const displayArea = document.getElementById('display-area');
+
+        // ডাটা লোড করা (যখন পেজ রিফ্রেশ হবে)
+        window.onload = () => {
+            const savedName = localStorage.getItem('username'); // ডাটা রিড করা
+            if (savedName) {
+                displayArea.innerText = `স্বাগতম ফিরে আসার জন্য, ${savedName}!`;
+            } else {
+                displayArea.innerText = "আপনার কোনো সেভ করা নাম পাওয়া যায়নি।";
+            }
+        };
+
+        // ডাটা সেভ করার ফাংশন
+        function saveData() {
+            const name = document.getElementById('name-input').value;
+            if (name) {
+                localStorage.setItem('username', name); // ডাটা সেভ করা (Key, Value)
+                displayArea.innerText = `সেভ করা হয়েছে: ${name}`;
+                alert("ডাটা সফলভাবে সেভ হয়েছে! এবার পেজটি রিফ্রেশ দিয়ে দেখুন।");
+            } else {
+                alert("দয়া করে একটি নাম লিখুন।");
+            }
+        }
+
+        // ডাটা মুছে ফেলার ফাংশন
+        function clearData() {
+            localStorage.removeItem('username'); // নির্দিষ্ট ডাটা মোছা
+            // অথবা localStorage.clear(); // সব ডাটা মোছা
+            displayArea.innerText = "সব ডাটা মুছে ফেলা হয়েছে।";
+            document.getElementById('name-input').value = "";
+        }
+
+        /**
+         * মনে রাখবেন:
+         * LocalStorage শুধুমাত্র স্ট্রিং (String) ডাটা জমা রাখতে পারে। 
+         * অবজেক্ট বা অ্যারে সেভ করতে চাইলে JSON.stringify() ব্যবহার করতে হয়।
+         */
+    </script>
+</body>
+</html>
